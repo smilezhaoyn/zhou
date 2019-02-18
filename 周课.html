@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+<script>
+/*
+
+ES6
+    
+AST抽象语法树
+
+PromiseA Plus
+
+学会看源码（分享各种框架之类的源码）
+
+
+
+React
+
+    脚手架
+        create-react-app
+            + webpack
+            + babel(babel-react-preser...)
+            + eslint
+            + less
+            ...
+        随意修改这个脚手架（配置出开发环境、测试环境、生产环境等环境变量模式）
+
+
+        webpack->  
+        react-scripts文件中 -> config 中的  webpack.config.js
+
+
+        想要将webpack暴露出来
+        npm run eject   -> y  
+        yarn执行需要    git add . git commit -m "init"
+
+    安装less
+
+        npm install less less-loader --save-dev  || npm i less less-loader -S
+
+        在webpack.config.js
+        改一下
+        {
+            loader:require.resolve('less-loader'),
+            test: /\.(css|less)$/
+        } 
+
+        总共改4处:       
+        const sassRegex = /\.(css|less)$/;
+        const sassModuleRegex = /\.module\.(css|less)$/;
+
+        搜索 sassRegex  把sess改为less
+        搜索 sassModuleRegex  把sess改为less
+        把sess-loader  改为less-loader
+
+    -jsx
+        1.把虚拟DOM变为真是DOM
+            1）首先会基于babel-react-preset语法包，把jsx变为
+                React.creactElement这种模式
+                    React.createElement(
+                        "div",
+                        null,
+                        ...
+                    )
+            2)通过createElement这个方法的执行，生成一个对象（虚拟DOM项）
+                    {
+                        key:null,
+                        ref:null;
+                        props:{},
+                        type:'div'
+                        ...
+                    }
+            3)基于REACT-DOM 中的RENDER方法，把创建的jsx对象放到指定容器中（把虚拟DOM转换为真实的DOM）
+                    ReactDOM.render([JSX对象],[容器],[回调函数])
+                    我调取了react中的一个方法
+        2.DOM DIFF (DOM的差异更新)
+
+                DOM DIFF是用key来进行对比的
+                DOM DIFF是每次改变布局时候  宿主哪里改变了就直接改变哪里  优化性能
+
+        PureComponent 纯粹的组件 提高性能
+                context
+
+        在循环遍历的时候  防止遍历原型上自己扩展的哪些可枚举的属性和方法
+
+        for(let attr in props){
+            if(!props.hasOwnProperty(attr)) break;
+        }
+
+
+        createTextNode('gagaigija') 创建文本节点
+
+
+redux(所有的情况下都可以用)
+    状态管理（信息共享）
+
+react-redux（只是让你在react中写的时候，比较容易）
+    > mobx
+    > dva
+    > vuex
+
+    中间件
+        - redux-logger
+        - redux-thunk 异步处理
+        - redux-promise
+        - redux-saga
+
+    回调函数
+        1.框架中父子组件之间的信息传递
+        2.JSONP也是基于回调函数
+        3.定时器也是回调函数
+        4.new Promise((resolve,reject)=>{
+
+        }).then(data=>{})
+        5.Hybrid混合app开发中，h5和native app交互可能会基于回调函数
+            native app(原生app:java-native(安卓)/object-c(IOS))
+
+        native-app直接安装在操作系统中
+            优势：
+            - 能够直接操作软件硬件
+            - 性能高（性能好）
+
+            劣势：
+            - 不能跨平台（安卓和IOS是不同技术，开发成本高）
+            - 需要维护多个版本
+            - 需要7天的审核期
+
+        web-app 运行在手机端浏览器或者webview中的
+            优势：
+            - 跨平台
+            - 非用户自主更新，及时传达最新的消息
+            - 开发成本低
+            - 不需要审核期
+            劣势：
+            - 性能相对不好
+            - 不能直接操作手机的软硬件
+            - 安全性能低
+
+        Hybrid app
+            优势
+            - 混合应用比例比较自由
+            - 兼容多平台，可以线下使用
+            - app安装体积减小
+            劣势
+            - 不确定上线时间
+            - 性能较慢（需要链接网络）
+            - 用户体验不如本地应用
+
+
+    IOS专用的一种方式：伪URL协议
+        native-app
+
+        跳转URL的拦截
+            1.找sports://这种伪协议的（协议是和app实现商量好的）
+            2.解析出地址中的参数或者其他信息
+            3.实现对应的功能（这里是拍照，把拍取得照片信息返回给h5   'fn(照片)' ） jsonp得回调函数
+
+    phoneGap 原生js写App
+        cordova -> ionic -> react native  ->  flutter
+
+    微信小程序  week
+
+
+在祖先级中先这样设置
+
+    设置上下文中得通用信息
+    constructor(props,){
+        super(props,)
+        this.state = {
+            num:10
+        }
+    }
+    static childContextTypes={
+        num:PropTypes.num,
+        fn:PropTypes.func
+    }
+    getChildContext(){
+        //return是啥，相当于给上下文中设置得信息是什么
+        return {
+            num:this.state.num,
+            fn:()=>{
+                let n = this.state.num;
+                this.setState({num:++n})
+            }
+        }
+    }
+
+
+在子元素组件中要使用时候，写下边得这两个（constructor这个可以不写）
+
+    //主动设置需要使用祖先上下文中得谁(指定需要使用值得类型和祖先设置得类型要保持一致)
+    static contextTypes = {
+        num:PropTypes.num,  //指定你要使用父级那个属性
+        fn:PropTypes.func
+    }
+    constructor(props,context){
+        super(props,context)
+    }
+
+    在组件中这样用  {this.context.num}
+
+    <button onClick={()=>{
+        this.context.fn();
+    }}></button>
+        
+        
+redux
+
+    const store = createStore('reducer') //存储当前项目中公共得状态信息
+
+    store.getState() //从容器中获取状态信息
+
+    store.sbuscribe() //向事件池中追加方法 
+    
+    当容易中得状态发生改变，会通知事件池中得方法依次执行（更新对应得组件）
+
+    管理员：reducer
+        所有得状态信息修改都要经过reducer基于不同得行为标识，修改store中不同得状态
+            switch(action.type){
+
+            }
+    store.dispath({
+        type:'行为标识'
+    })
+    派发行为，通知reducer按照不同得行为标识修改容器中得状态信息
+
+    import {createStore} from 'redux';
+
+    const store = createStore(reducer);
+
+    componentDidMount(){
+        //向事件池中追加方法，当store中得状态改变，方法执行，强制更新当前组件
+        store.subscribe(()=>{
+            this.foreceUpdate(); //强制更新
+        })
+    }
+
+
+    当点击时候  改变其中得数据得时候
+        onClick={()=>{
+            let action = {
+                type="INIT"
+            }
+            state.dispath(action)
+        }}
+
+
+redux源码
+        1.创建一个容器储存状态信息
+        2.创建一个事件池
+        3.提供 getState/dispath/subscribe
+
+*/ 
+
+function createStore(reducer){
+    // reducer 当前用户自己构建得管理员
+
+    // 管理状态和实践池
+
+    let state,listenerAry = [];
+    //从容器中获取到state的状态信息
+    function getState(){
+        return JSON.parse(JSON.stringify(state));
+    }
+
+    function sbuscribe(fn){
+        // 去重 处理
+        if(!listenerAry.includes(fn)){
+            listenerAry.push(fn);
+        }
+
+        //返回移出fn得方法 
+        return function unsubscribe(){
+           listenerAry =  listenerAry.filter(item => item !== fn);
+        }
+       
+    }
+
+
+
+    function dispath(action){
+        // action派发行为对象
+        //执行reducer
+        state = reducer(state,action);
+        //通知事件池中得方法依次执行
+        listenerAry.forEach(item => item());
+    }
+
+    //默认派发一次，目的为了把Reducer执行一次，把用户自己设置得初始值给store容器
+    dispath({
+        type:`@@redux/INIT${new Date().getTime()}`
+    });
+
+
+    return{
+        getState,
+        sbuscribe,
+        dispath
+
+    }
+}
+
+export {
+    createStore
+}
+
+
+
+/*
+ * type:当前标签的类型
+ * props:传递给当前标签的属性集合(null/{})
+ * childrenArg:所有子元素的集合（如果没有子元素是空数组）
+ */
+ export default function createElement(type, props, ...childrenArg) {
+	// 如果传递的是一个NULL，我们让其为空对象
+	props = props || {};
+	// 解构出来KEY和REF
+	let {
+		key = null,
+		ref = null
+	} = props;
+	delete props.key;
+	delete props.ref;
+
+	let len = childrenArg.length;
+	return {
+		type, //<=>type: type,
+		key,
+		ref,
+		props: {
+			...props,
+			// 验证是否传递的了子元素，只传递一项，生成的JSX对象的children是一个值不是数组，传递多项才是数组
+			children: len === 0 ? null : (len === 1 ? childrenArg[0] : childrenArg)
+		}
+	}
+}
+
+/*
+createElement('div',{ id: 'AA', className: 'BB', style: {color: 'red',background: 'green'}, key: 'A12', ref: 'box' },'',React.createElement());
+
+{
+	type:'div',
+	ref:'box',
+	key:'A12',
+	props:{
+		id:'AA',
+		className:'BB',
+		style:{},
+		children:''/{}/[]
+	}
+}
+*/
+
+
+
+
+/*
+ * jsxOBJ:JSX虚拟DOM对象
+ * container:容器
+ * callback:虚拟DOM渲染完触发的回调函数
+ */
+ function render(jsxOBJ, container, callback) {
+	let {
+		type,
+		props
+	} = jsxOBJ;
+
+	// 创建元素存放到指定的容器中（TYPE是标签名）
+	if (typeof type === 'string') {
+		let newEle = document.createElement(type);
+		// 把PROPS中的属性赋值给元素
+		for (let attr in props) {
+			// 防止遍历类原型上自己扩展的那些可枚举的属性和方法
+			if (!props.hasOwnProperty(attr)) break;
+			let value = props[attr];
+			// className
+			if (attr === 'className') {
+				newEle.setAttribute('class', value);
+				continue;
+			}
+			// style：遍历每一项分别赋值给元素
+			if (attr === 'style') {
+				// value:props['style']
+				for (let styAttr in value) {
+					if (!value.hasOwnProperty(styAttr)) break;
+					let styVal = value[styAttr];
+					newEle.style[styAttr] = styVal;
+				}
+				continue;
+			}
+			// children子元素的处理
+			if (attr === 'children') {
+				// value:props['children']
+                if (value === null) continue;
+                
+                if(!value instanceof Array){
+                    value = [value];
+                }
+				// !(value instanceof Array) ? value = [value]: null;
+				// 循环所有的子元素，一项项的增加到newEle中
+				value.forEach(item => {
+					if (typeof item === 'string') {
+						newEle.appendChild(document.createTextNode(item));
+					} else {
+						render(item, newEle);
+					}
+				});
+				continue;
+			}
+			newEle.setAttribute(attr, value);
+		}
+		container.appendChild(newEle);
+		callback && callback();
+		return;
+	}
+
+}
+export default{
+	render
+};
+
+/*
+ {
+	type:'div',
+	ref:'box',
+	key:'A12',
+	props:{
+		id:'AA',
+		className:'BB',
+		style:{},
+		children:''/{}/[]
+	}
+}
+*/
+</script>
+</body>
+</html>
